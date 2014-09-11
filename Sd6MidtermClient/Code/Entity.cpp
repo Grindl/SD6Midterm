@@ -6,7 +6,7 @@
 #include "Entity.hpp"
 #include "Primitives/Color3b.hpp"
 
-
+extern Color3b g_itColor;
 
 int Entity::s_nextAssignableID = 0;
 
@@ -16,6 +16,7 @@ Entity::Entity()
 	m_entityID = s_nextAssignableID;
 	s_nextAssignableID++;
 	m_target = Vector2f(0,0);
+	m_isIt = false;
 }
 
 //----------------------------------------------------------------------------------------
@@ -37,13 +38,21 @@ CS6Packet Entity::packForSend()
 //----------------------------------------------------------------------------------------
 void Entity::update(float deltaSeconds)
 {
+	float currentSpeed = m_isIt ? IT_SPEED : VICTIM_SPEED;
 	Vector2f velocity = m_target - m_position;
-	if (velocity.magnitude() > deltaSeconds*50.f)
+	if (velocity.magnitude() > deltaSeconds*currentSpeed)
 	{
 		velocity = velocity.normalized();
-		m_position = m_position + (velocity * deltaSeconds * 50.f);
+		m_position = m_position + (velocity * deltaSeconds * currentSpeed);
 	}
-	
+	if (Color3b(m_color) == g_itColor)
+	{
+		m_isIt = true;
+	}
+	else
+	{
+		m_isIt = false;
+	}
 }
 
 //----------------------------------------------------------------------------------------

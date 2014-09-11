@@ -26,12 +26,14 @@ std::vector<RemoteUDPClient> g_clients;
 bool g_gameOver;
 //keep track of who IT is
 Color3b g_itColor;
+double g_gameStartTime;
 
 void startGame()
 {
 	initializeTimeUtility();
 	g_gameOver = false;
 	g_itColor = Color3b(0,0,0);
+	g_gameStartTime = getCurrentTimeSeconds();
 }
 
 void startServer(const char* port)
@@ -71,7 +73,11 @@ CS6Packet receive()
 				newClient = false;
 				double currentTime = getCurrentTimeSeconds();
 				g_clients[ii].m_lastReceivedPacketTime = currentTime;
-				g_clients[ii].m_unprocessedPackets.push_back(pk);
+				//only process packets that are from the current game
+				if (currentTime > g_gameStartTime)
+				{
+					g_clients[ii].m_unprocessedPackets.push_back(pk);
+				}
 			}
 		}
 		if (newClient)
@@ -122,20 +128,23 @@ int main()
 			positionUpdatePackets.push_back(g_clients[i].m_unit.packForSend());
 			//TODO also check to see if they have declared victory and propagate
 			//and finally, grab the location of IT
-			if (Color3b(g_clients[i].m_unit.m_color) == g_itColor)
+			if (Color3b(g_clients[i].m_unit.m_color) == g_itColor && !g_gameOver)
 			{
 				itLocation = g_clients[i].m_unit.m_position;
 			}
 		}
 
 		Color3b victimColor;
-		for (unsigned int victimIndex = 0; victimIndex < g_clients.size() && !g_gameOver; victimIndex++)
+		Color3b newItColor;
+		for (unsigned int victimIndex = 0; victimIndex < g_clients.size(); victimIndex++)
 		{
 			//loop through all victims to see if they are touching IT
 			victimColor = Color3b(g_clients[victimIndex].m_unit.m_color);
-			if (g_clients[victimIndex].m_unit.m_position.distanceSquared(itLocation) < 100.f && !(victimColor == g_itColor))
+			if (g_clients[victimIndex].m_unit.m_position.distanceSquared(itLocation) < 100.f && !(victimColor == g_itColor) && !g_gameOver)
 			{
+				std::cout<<"Game Over!\n";
 				g_gameOver = true;
+				newItColor = victimColor;
 				//if so, put in a victory packet
 				CS6Packet vicPacket;
 				vicPacket.packetType = TYPE_Victory;
@@ -154,6 +163,17 @@ int main()
 			if (g_gameOver)
 			{
 				//TODO generate reset packets
+				CS6Packet resetPkt;
+				resetPkt.packetType = TYPE_GameStart;
+				Color3b cleanedColor = Color3b(g_clients[i].m_unit.m_color);
+				memcpy(resetPkt.playerColorAndID, &cleanedColor, sizeof(cleanedColor));
+				memcpy(resetPkt.data.reset.playerColorAndID, &cleanedColor, sizeof(cleanedColor));
+				memcpy(resetPkt.data.reset.itPlayerColorAndID, &newItColor, sizeof(newItColor));
+				g_clients[i].m_unit.m_position = Vector2f (rand()%500, rand()%500);
+				resetPkt.data.reset.playerXPosition = g_clients[i].m_unit.m_position.x;
+				resetPkt.data.reset.playerYPosition = g_clients[i].m_unit.m_position.y;
+				g_clients[i].m_nonAckedGuaranteedPackets.push_back(resetPkt);
+				
 			}
 			//put all of the gameplay packets and non-acked guaranteed packets in to a vector to send to the player
 			g_clients[i].m_pendingPacketsToSend.insert(g_clients[i].m_pendingPacketsToSend.end(), positionUpdatePackets.begin(), positionUpdatePackets.end());
@@ -165,8 +185,9 @@ int main()
 		//if the game has ended, reset the game
 		if(g_gameOver)
 		{
-			g_itColor = victimColor;
+			g_itColor = newItColor;
 			g_gameOver = false;
+			g_gameStartTime = getCurrentTimeSeconds() + 2.0; //a two second wait between rounds
 		}
 
 		Sleep(50);

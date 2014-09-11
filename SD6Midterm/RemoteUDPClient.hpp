@@ -33,6 +33,7 @@ public:
 	std::vector<CS6Packet> m_nonAckedGuaranteedPackets;
 	bool m_isDeclaringVictory;
 	double m_lastReceivedPacketTime;
+	unsigned int m_nextPacketNumToSend;
 
 	void sendAllPendingPackets();
 	void processUnprocessedPackets();

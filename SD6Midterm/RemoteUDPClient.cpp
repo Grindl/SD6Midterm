@@ -10,14 +10,22 @@ extern Color3b g_itColor;
 RemoteUDPClient::RemoteUDPClient()
 {
 	m_isDeclaringVictory = false;
+	m_nextPacketNumToSend = 1;
 }
 
 void RemoteUDPClient::sendAllPendingPackets()
 {
-	//clean up the pending packets and give them the appropriate identifier and time
 	double sendTime = getCurrentTimeSeconds();
 	//loop through all the packets and set the send time and order number
-
+	for (unsigned int packetIndex = 0; packetIndex < m_pendingPacketsToSend.size(); packetIndex++)
+	{
+		m_pendingPacketsToSend[packetIndex].timestamp = sendTime;
+		if (m_pendingPacketsToSend[packetIndex].packetNumber == 0)
+		{
+			m_pendingPacketsToSend[packetIndex].packetNumber = m_nextPacketNumToSend;
+			m_nextPacketNumToSend++;
+		}
+	}
 	//send the actual packets
 	int WSAResult;
 	for (unsigned int ii = 0; ii < m_pendingPacketsToSend.size(); ii++)
@@ -78,7 +86,7 @@ void RemoteUDPClient::processUnprocessedPackets()
 					//send them a reset
 					//and tell them who IT is
 					CS6Packet resetPacket;
-					resetPacket.packetType = TYPE_Reset;
+					resetPacket.packetType = TYPE_GameStart;
 					Color3b cleanedColor = Color3b(m_unit.m_color);
 					memcpy(resetPacket.playerColorAndID, &cleanedColor, sizeof(cleanedColor));
 					memcpy(resetPacket.data.reset.playerColorAndID, &cleanedColor, sizeof(cleanedColor));

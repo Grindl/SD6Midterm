@@ -41,7 +41,7 @@ void User::processUpdatePacket(CS6Packet newData)
 			Color3b tempColor;
 			memcpy(&tempColor, newData.playerColorAndID, sizeof(tempColor));
 			m_unit.m_color = Color4f(tempColor);
-			if (m_unit.m_position == Vector2f(0,0))
+			if (m_unit.m_position == Vector2f(0,0) || m_unit.m_position.distanceSquared(m_unit.m_target) > 400)
 			{
 				m_unit.m_position.x = newData.data.updated.xPosition;
 				m_unit.m_position.y = newData.data.updated.yPosition;
@@ -51,6 +51,7 @@ void User::processUpdatePacket(CS6Packet newData)
 		}
 	case TYPE_Victory:
 		{
+			//TODO
 			//ack back
 		}
 	}

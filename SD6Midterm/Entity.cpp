@@ -14,6 +14,7 @@ Entity::Entity()
 	m_target = Vector2f(0,0);
 	m_velocity = Vector2f(0,0);
 	m_orientation = 0;
+	m_isIt = false;
 }
 
 //----------------------------------------------------------------------------------------

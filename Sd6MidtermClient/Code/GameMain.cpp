@@ -20,6 +20,7 @@ Vector2f cursorPositionInWorld;
 User g_localUser;
 Connection* g_serverConnection;
 std::vector<User> g_users;
+Color3b g_itColor;
 
 bool ChangeServer(std::string addressAndPort)
 {
@@ -83,6 +84,7 @@ Tag::Tag()
 	g_localUser.m_unit.m_color = Color4f(0.2f, 1.0f, 0.2f, 1.f);
 	g_localUser.m_userType = USER_LOCAL;
 	g_localUser.m_unit.m_position = Vector2f(0,0);
+	g_itColor = Color3b(0,0,0);
 	CommandParser::RegisterCommand("connect", ChangeServer);
 	CommandParser::RegisterCommand("color", ChangeColor);
 }
@@ -94,33 +96,29 @@ void Tag::update(float deltaTime)
 	bool leftwardVelocity = m_IOHandler.m_keyIsDown['A'];
 	bool rightwardVelocity = m_IOHandler.m_keyIsDown['D'];
 
-	//HACK
-	const float SPEED_OF_CAMERA = 50.f;
+	float currentSpeed = g_localUser.m_unit.m_isIt ? IT_SPEED : VICTIM_SPEED;
 
-	g_localUser.m_unit.m_target.x += (rightwardVelocity - leftwardVelocity)*SPEED_OF_CAMERA*deltaTime;
-	g_localUser.m_unit.m_target.y += (forwardVelocity - backwardVelocity)*SPEED_OF_CAMERA*deltaTime;
-	if (!(g_localUser.m_unit.m_target == g_localUser.m_unit.m_position))
-	{
-		int BREAKHERE = 0;
-	}
+	g_localUser.m_unit.m_target.x += (rightwardVelocity - leftwardVelocity)*currentSpeed*deltaTime;
+	g_localUser.m_unit.m_target.y += (forwardVelocity - backwardVelocity)*currentSpeed*deltaTime;
 	g_localUser.update(deltaTime);
 
-	if (/*Winning &&*/ !(g_localUser.m_unit.m_position == Vector2f(0,0)))
-	{
-		CS6Packet vicPacket;
-		vicPacket.packetType = TYPE_Victory;
-		Color3b userColor = Color3b(g_localUser.m_unit.m_color);
-		memcpy(vicPacket.playerColorAndID, &userColor, sizeof(userColor));
-		memcpy(vicPacket.data.victorious.winningPlayerColorAndID, &userColor, sizeof(userColor));
-		g_serverConnection->sendPacket(vicPacket);
-	}
+	//user no longer has authority to declare victory
+	//if (/*Winning &&*/ !(g_localUser.m_unit.m_position == Vector2f(0,0)))
+	//{
+	//	CS6Packet vicPacket;
+	//	vicPacket.packetType = TYPE_Victory;
+	//	Color3b userColor = Color3b(g_localUser.m_unit.m_color);
+	//	memcpy(vicPacket.playerColorAndID, &userColor, sizeof(userColor));
+	//	memcpy(vicPacket.data.victorious.winningPlayerColorAndID, &userColor, sizeof(userColor));
+	//	g_serverConnection->sendPacket(vicPacket);
+	//}
 
 	CS6Packet currentPacket;
 	do 
 	{
 		bool newUser = true;
 		currentPacket = g_serverConnection->receivePackets();
-		if (currentPacket.packetType == TYPE_Reset)
+		if (currentPacket.packetType == TYPE_GameStart)
 		{
 			//Reset type things
 			g_localUser.m_unit.m_position = Vector2f(currentPacket.data.reset.playerXPosition, currentPacket.data.reset.playerYPosition);
@@ -129,11 +127,13 @@ void Tag::update(float deltaTime)
 			memcpy(&packetColor, currentPacket.data.reset.playerColorAndID, sizeof(packetColor));
 			g_localUser.m_unit.m_color = Color4f(packetColor);
 			g_localUser.m_isInGame = true;
+			//mark who is IT
+			memcpy(&g_itColor, currentPacket.data.reset.itPlayerColorAndID, sizeof(g_itColor));
 
 			CS6Packet ackForResetPacket;
 			ackForResetPacket.packetType = TYPE_Acknowledge;
 			memcpy(ackForResetPacket.playerColorAndID, &packetColor, sizeof(packetColor));
-			ackForResetPacket.data.acknowledged.packetType = TYPE_Reset;
+			ackForResetPacket.data.acknowledged.packetType = TYPE_GameStart;
 			ackForResetPacket.data.acknowledged.packetNumber = currentPacket.packetNumber;
 			g_serverConnection->sendPacket(ackForResetPacket);
 

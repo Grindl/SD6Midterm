@@ -24,7 +24,7 @@ typedef unsigned char PacketType;
 static const PacketType TYPE_Acknowledge = 10;
 static const PacketType TYPE_Victory = 11;
 static const PacketType TYPE_Update = 12;
-static const PacketType TYPE_Reset = 13;
+static const PacketType TYPE_GameStart = 13;
 
 //-----------------------------------------------------------------------------------------------
 struct AckPacket
