@@ -34,6 +34,7 @@ public:
 	bool m_isDeclaringVictory;
 	double m_lastReceivedPacketTime;
 	unsigned int m_nextPacketNumToSend;
+	unsigned int m_lastReceivedUpdatePacketNum;
 
 	void sendAllPendingPackets();
 	void processUnprocessedPackets();

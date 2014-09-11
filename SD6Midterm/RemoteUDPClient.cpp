@@ -11,6 +11,7 @@ RemoteUDPClient::RemoteUDPClient()
 {
 	m_isDeclaringVictory = false;
 	m_nextPacketNumToSend = 1;
+	m_lastReceivedUpdatePacketNum = 0;
 }
 
 void RemoteUDPClient::sendAllPendingPackets()
@@ -94,6 +95,8 @@ void RemoteUDPClient::processUnprocessedPackets()
 					memcpy(resetPacket.data.reset.itPlayerColorAndID, &itColor, sizeof(itColor));
 					resetPacket.data.reset.playerXPosition = m_unit.m_position.x;
 					resetPacket.data.reset.playerYPosition = m_unit.m_position.y;
+					m_nextPacketNumToSend++;
+					resetPacket.packetNumber = m_nextPacketNumToSend;
 					//increment and set packet num			
 					m_nonAckedGuaranteedPackets.push_back(resetPacket);
 				}
@@ -116,17 +119,22 @@ void RemoteUDPClient::processUnprocessedPackets()
 		case TYPE_Update:
 			{
 				//if more recent than the last
-				//update the relevant player in our data
-				m_unit.m_position.x = currentPacket.data.updated.xPosition;
-				m_unit.m_position.y = currentPacket.data.updated.yPosition;
-				m_unit.m_velocity.x = currentPacket.data.updated.xVelocity;
-				m_unit.m_velocity.y = currentPacket.data.updated.yVelocity;
-				m_unit.m_orientation = currentPacket.data.updated.yawDegrees;
-				//mark as most recent
+				if (currentPacket.packetNumber > m_lastReceivedUpdatePacketNum)
+				{
+					//update the relevant player in our data
+					m_unit.m_position.x = currentPacket.data.updated.xPosition;
+					m_unit.m_position.y = currentPacket.data.updated.yPosition;
+					m_unit.m_velocity.x = currentPacket.data.updated.xVelocity;
+					m_unit.m_velocity.y = currentPacket.data.updated.yVelocity;
+					m_unit.m_orientation = currentPacket.data.updated.yawDegrees;
+					//mark as most recent
+					m_lastReceivedUpdatePacketNum = currentPacket.packetNumber;
+				}	
 				break;
 			}
 		case TYPE_Victory:
 			{
+				//DEPRECATED
 				//send up the chain that the game is over
 				m_isDeclaringVictory = true;
 				//ack back

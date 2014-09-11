@@ -151,6 +151,7 @@ int main()
 				memcpy(vicPacket.playerColorAndID, &g_itColor, sizeof(g_itColor));
 				memcpy(vicPacket.data.victorious.taggedPlayerColorAndID, &victimColor, sizeof(victimColor));
 				memcpy(vicPacket.data.victorious.winningPlayerColorAndID, &g_itColor, sizeof(g_itColor));
+				vicPacket.packetNumber = 0;
 				positionUpdatePackets.push_back(vicPacket);
 				//TODO should this be guaranteed delivery?
 			}
@@ -172,6 +173,8 @@ int main()
 				g_clients[i].m_unit.m_position = Vector2f (rand()%500, rand()%500);
 				resetPkt.data.reset.playerXPosition = g_clients[i].m_unit.m_position.x;
 				resetPkt.data.reset.playerYPosition = g_clients[i].m_unit.m_position.y;
+				g_clients[i].m_nextPacketNumToSend++;
+				resetPkt.packetNumber = g_clients[i].m_nextPacketNumToSend;
 				g_clients[i].m_nonAckedGuaranteedPackets.push_back(resetPkt);
 				
 			}

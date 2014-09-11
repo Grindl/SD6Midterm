@@ -32,6 +32,7 @@ CS6Packet Entity::packForSend()
 	preparedPacket.data.updated.xVelocity = m_velocity.x;
 	preparedPacket.data.updated.yVelocity = m_velocity.y;
 	preparedPacket.data.updated.yawDegrees = m_orientationDegrees;
+	preparedPacket.packetNumber = 0;
 	return preparedPacket;
 }
 

@@ -19,7 +19,7 @@ Vector2f cursorPositionInCamera;
 Vector2f cursorPositionInWorld;
 User g_localUser;
 Connection* g_serverConnection;
-std::vector<User> g_users;
+std::vector<User*> g_users;
 Color3b g_itColor;
 
 bool ChangeServer(std::string addressAndPort)
@@ -146,17 +146,17 @@ void Tag::update(float deltaTime)
 			for (unsigned int ii = 0; ii < g_users.size(); ii++)
 			{
 				
-				if (Color3b(g_users[ii].m_unit.m_color) == packetColor)
+				if (Color3b(g_users[ii]->m_unit.m_color) == packetColor)
 				{
 					newUser = false;
-					g_users[ii].processUpdatePacket(currentPacket);
+					g_users[ii]->processUpdatePacket(currentPacket);
 				}
 			}
 			if (newUser)
 			{
-				User tempUser = User();
-				tempUser.processUpdatePacket(currentPacket);
-				tempUser.m_userType = USER_REMOTE;
+				User* tempUser = new User();
+				tempUser->processUpdatePacket(currentPacket);
+				tempUser->m_userType = USER_REMOTE;
 				g_users.push_back(tempUser);
 			}
 		}
@@ -164,7 +164,7 @@ void Tag::update(float deltaTime)
 
 	for (unsigned int ii = 0; ii < g_users.size(); ii++)
 	{
-		g_users[ii].update(deltaTime);
+		g_users[ii]->update(deltaTime);
 	}
 
 	mouseUpdate();
@@ -178,11 +178,11 @@ void Tag::render()
 
 	m_worldCamera.preRenderStep();
 
-	g_localUser.render();
+	//g_localUser.render(); //would show the "true" position if uncommented
 
 	for (unsigned int ii = 0; ii < g_users.size(); ii++)
 	{
-		g_users[ii].render();
+		g_users[ii]->render();
 	}
 
 	glUseProgram(m_renderer.m_shaderID);

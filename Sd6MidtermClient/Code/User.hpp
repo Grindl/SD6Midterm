@@ -22,6 +22,8 @@ public:
 	Entity m_unit;
 	USER_TYPE m_userType;
 	bool m_isInGame;
+	unsigned int m_lastReceivedUpdatePacketNum;
+	unsigned int m_lastSentPacketNum;
 
 	CS6Packet sendInput();
 	void processUpdatePacket(CS6Packet newData);
