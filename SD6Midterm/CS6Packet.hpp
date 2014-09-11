@@ -36,12 +36,11 @@ struct AckPacket
 //-----------------------------------------------------------------------------------------------
 struct ResetPacket
 {
-	float flagXPosition;
-	float flagYPosition;
 	float playerXPosition;
 	float playerYPosition;
 	//Player orientation should always start at 0 (east)
 	unsigned char playerColorAndID[ 3 ];
+	unsigned char itPlayerColorAndID[3];
 };
 
 //-----------------------------------------------------------------------------------------------
@@ -60,7 +59,8 @@ struct UpdatePacket
 //-----------------------------------------------------------------------------------------------
 struct VictoryPacket
 {
-	unsigned char playerColorAndID[ 3 ];
+	unsigned char winningPlayerColorAndID[ 3 ];
+	unsigned char taggedPlayerColorAndID[3];
 };
 
 

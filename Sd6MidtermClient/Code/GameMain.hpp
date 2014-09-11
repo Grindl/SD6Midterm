@@ -15,10 +15,10 @@
 
 class Player;
 
-class Panzerfaust : public Game
+class Tag : public Game
 {
 public:
-	Panzerfaust();
+	Tag();
 
 	std::vector<Element*> m_elements;
 	std::vector<User*> m_users;

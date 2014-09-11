@@ -20,7 +20,6 @@ Vector2f cursorPositionInWorld;
 User g_localUser;
 Connection* g_serverConnection;
 std::vector<User> g_users;
-Entity g_flag;
 
 bool ChangeServer(std::string addressAndPort)
 {
@@ -41,7 +40,7 @@ bool ChangeColor(std::string rgbaColor)
 }
 
 
-void Panzerfaust::mouseUpdate()
+void Tag::mouseUpdate()
 {
 	//TODO this is all very WIN32, abstract this in to the IOHandler
 	if(m_IOHandler.m_hasFocus)
@@ -60,15 +59,13 @@ void Panzerfaust::mouseUpdate()
 	glColor3f(1.0f,1.0f,1.0f);
 }
 
-Panzerfaust::Panzerfaust()
+Tag::Tag()
 {
 	
 	m_renderer = Renderer();
-	//debugUnitTest(m_elements);
 	m_internalTime = 0.f;
 	m_isQuitting = m_renderer.m_fatalError;
 	m_console.m_log = ConsoleLog();
-	//m_world = World();
 	m_worldCamera = Camera();
 
 	m_displayConsole = false;
@@ -80,19 +77,17 @@ Panzerfaust::Panzerfaust()
 
 	UnitTestXMLParser(".\\Data\\UnitTest.xml");
 	unitTestEventSystem();
-	//g_serverConnection = new Connection("129.119.246.221", "5000");
 	g_serverConnection = new Connection("127.0.0.1", "8080");
 	g_localUser = User();
 	g_localUser.m_unit = Entity();
 	g_localUser.m_unit.m_color = Color4f(0.2f, 1.0f, 0.2f, 1.f);
 	g_localUser.m_userType = USER_LOCAL;
 	g_localUser.m_unit.m_position = Vector2f(0,0);
-	g_flag.m_color = Color4f(0.1f, 0.1f, 0.1f, 1.f);
 	CommandParser::RegisterCommand("connect", ChangeServer);
 	CommandParser::RegisterCommand("color", ChangeColor);
 }
 
-void Panzerfaust::update(float deltaTime)
+void Tag::update(float deltaTime)
 {
 	bool forwardVelocity = m_IOHandler.m_keyIsDown['W'];
 	bool backwardVelocity = m_IOHandler.m_keyIsDown['S'];
@@ -110,13 +105,13 @@ void Panzerfaust::update(float deltaTime)
 	}
 	g_localUser.update(deltaTime);
 
-	if (g_localUser.m_unit.m_position.distanceSquared(g_flag.m_position) < 100.f && !(g_localUser.m_unit.m_position == Vector2f(0,0)))
+	if (/*Winning &&*/ !(g_localUser.m_unit.m_position == Vector2f(0,0)))
 	{
 		CS6Packet vicPacket;
 		vicPacket.packetType = TYPE_Victory;
 		Color3b userColor = Color3b(g_localUser.m_unit.m_color);
 		memcpy(vicPacket.playerColorAndID, &userColor, sizeof(userColor));
-		memcpy(vicPacket.data.victorious.playerColorAndID, &userColor, sizeof(userColor));
+		memcpy(vicPacket.data.victorious.winningPlayerColorAndID, &userColor, sizeof(userColor));
 		g_serverConnection->sendPacket(vicPacket);
 	}
 
@@ -133,8 +128,6 @@ void Panzerfaust::update(float deltaTime)
 			Color3b packetColor = Color3b();
 			memcpy(&packetColor, currentPacket.data.reset.playerColorAndID, sizeof(packetColor));
 			g_localUser.m_unit.m_color = Color4f(packetColor);
-			g_flag.m_position = Vector2f(currentPacket.data.reset.flagXPosition, currentPacket.data.reset.flagYPosition);
-			g_flag.m_target = g_flag.m_position;
 			g_localUser.m_isInGame = true;
 
 			CS6Packet ackForResetPacket;
@@ -163,9 +156,6 @@ void Panzerfaust::update(float deltaTime)
 			{
 				User tempUser = User();
 				tempUser.processUpdatePacket(currentPacket);
-				//tempUser.m_unit.m_position = Vector2f(currentPacket.x, currentPacket.y);
-				//tempUser.m_unit.m_target = Vector2f(currentPacket.x, currentPacket.y);
-				//tempUser.m_unit.m_color = Color4f(packetColor.r/255.f, packetColor.g/255.f, packetColor.b/255.f, 1.f);
 				tempUser.m_userType = USER_REMOTE;
 				g_users.push_back(tempUser);
 			}
@@ -180,20 +170,15 @@ void Panzerfaust::update(float deltaTime)
 	mouseUpdate();
 
 	m_internalTime += deltaTime;
-
-	//m_world.update(deltaTime);
 }
 
-void Panzerfaust::render()
+void Tag::render()
 {
 	m_renderer.m_singleFrameBuffer.preRenderStep();
 
 	m_worldCamera.preRenderStep();
 
-	//m_world.render(m_playerController.m_possessedActor);
-
 	g_localUser.render();
-	g_flag.render();
 
 	for (unsigned int ii = 0; ii < g_users.size(); ii++)
 	{
@@ -227,7 +212,7 @@ void Panzerfaust::render()
 	}
 }
 
-bool Panzerfaust::keyDownEvent(unsigned char asKey)
+bool Tag::keyDownEvent(unsigned char asKey)
 {
 	
 	if (asKey == VK_OEM_3)
@@ -259,12 +244,12 @@ bool Panzerfaust::keyDownEvent(unsigned char asKey)
 	return true;
 }
 
-bool Panzerfaust::characterEvent(unsigned char asKey, unsigned char scanCode)
+bool Tag::characterEvent(unsigned char asKey, unsigned char scanCode)
 {
 	return false;
 }
 
-bool Panzerfaust::typingEvent(unsigned char asKey)
+bool Tag::typingEvent(unsigned char asKey)
 {
 	if (m_displayConsole && asKey != '`' && asKey != '~')
 	{
@@ -295,7 +280,7 @@ bool Panzerfaust::typingEvent(unsigned char asKey)
 	}
 }
 
-bool Panzerfaust::mouseEvent(unsigned int eventType)
+bool Tag::mouseEvent(unsigned int eventType)
 {
 	switch(eventType)
 	{

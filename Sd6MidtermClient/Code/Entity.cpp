@@ -51,7 +51,15 @@ void Entity::render()
 {
 	glPushMatrix();
 	glTranslatef(m_position.x, m_position.y, 0.f);
-	glScalef(10.f, 10.f, 0.f);
+	if(m_isIt)
+	{
+		glScalef(20.f, 20.f, 0.f);
+	}
+	else
+	{
+		glScalef(10.f, 10.f, 0.f);
+	}
+	
 
 	glColor4f(m_color.red, m_color.green, m_color.blue, 1.f);
 	glBegin(GL_QUADS);

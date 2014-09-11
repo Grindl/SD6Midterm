@@ -17,8 +17,9 @@ public:
 	Vector2f m_position; //center of the entity
 	Vector2f m_target;
 	Vector2f m_velocity;
-	float m_orientation;
+	float m_orientation;//0 east, to 359 counterclockwise
 	Color4f m_color;
+	bool m_isIt;
 
 	CS6Packet packForSend();
 	virtual void update(float deltaSeconds);

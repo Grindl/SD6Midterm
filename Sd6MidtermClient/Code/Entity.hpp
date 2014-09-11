@@ -7,6 +7,9 @@
 #include "Primitives/Color4f.hpp"
 #include "CS6Packet.hpp"
 
+static const float IT_SPEED = 60.f;
+static const float VICTIM_SPEED = 50.f;
+
 
 class Entity : public Element
 {
@@ -20,6 +23,7 @@ public:
 	Vector2f m_velocity;
 	float m_orientationDegrees;//0 east, to 359 counterclockwise
 	Color4f m_color;
+	bool m_isIt;
 
 	CS6Packet packForSend();
 	virtual void update(float deltaSeconds);

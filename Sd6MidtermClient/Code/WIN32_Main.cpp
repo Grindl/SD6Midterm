@@ -26,13 +26,13 @@
 
 
 
-Panzerfaust* g_theGame;
+Tag* g_theGame;
 
 bool g_isQuitting = false;
 HWND g_hWnd = nullptr;
 HDC g_displayDeviceContext = nullptr;
 HGLRC g_openGLRenderingContext = nullptr;
-const char* APP_NAME = "SD6 MIDTERM";
+const char* APP_NAME = "SD6 MIDTERM - TAG";
 
 
 
@@ -207,7 +207,7 @@ void update(float deltaSeconds)
 {
 	g_theGame->update(deltaSeconds);
 	//HACK
-	g_isQuitting = ((Panzerfaust*)g_theGame)->m_isQuitting || g_isQuitting;
+	g_isQuitting = ((Tag*)g_theGame)->m_isQuitting || g_isQuitting;
 }
 
 void render()
@@ -256,7 +256,7 @@ int WINAPI WinMain( HINSTANCE applicationInstanceHandle, HINSTANCE, LPSTR comman
 
 	//start the game
 	CreateOpenGLWindow( applicationInstanceHandle );
-	g_theGame = new Panzerfaust();
+	g_theGame = new Tag();
 	CommandParser::RegisterCommand("quit", quitGame);
 	g_theGame->m_IOHandler.m_clientWindow = g_hWnd;
 

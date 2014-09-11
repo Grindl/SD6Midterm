@@ -1,14 +1,18 @@
-﻿Build started 9/11/2014 1:32:00 PM.
+﻿Build started 9/11/2014 2:12:49 PM.
      1>Project "C:\Users\AW 18\Documents\GitHub\SD6Midterm\Sd6MidtermClient\Sd6MidtermClient.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Debug\Sd6MidtermClient.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Users\AW 18\Documents\GitHub\SD6Midterm\Sd6MidtermClient\..\EngineCore\Code\\" /ZI /nologo /W4 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Code\Connection.cpp
-         Connection.cpp
-     1>c:\users\aw 18\documents\github\sd6midterm\sd6midtermclient\code\connection.cpp(15): warning C4244: 'argument' : conversion from 'int' to 'u_short', possible loss of data
-     1>c:\users\aw 18\documents\github\sd6midterm\sd6midtermclient\code\connection.cpp(50): warning C4189: 'BREAKSUCCESS' : local variable is initialized but not referenced
-     1>c:\users\aw 18\documents\github\sd6midterm\sd6midtermclient\code\connection.cpp(54): warning C4189: 'newError' : local variable is initialized but not referenced
-     1>c:\users\aw 18\documents\github\sd6midterm\sd6midtermclient\code\connection.cpp(55): warning C4189: 'BREAKFAIL' : local variable is initialized but not referenced
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Users\AW 18\Documents\GitHub\SD6Midterm\Sd6MidtermClient\..\EngineCore\Code\\" /ZI /nologo /W4 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Code\GameMain.cpp Code\WIN32_Main.cpp
+         WIN32_Main.cpp
+         GameMain.cpp
+     1>c:\users\aw 18\documents\github\sd6midterm\sd6midtermclient\code\gamemain.cpp(52): warning C4244: 'argument' : conversion from 'LONG' to 'float', possible loss of data
+     1>c:\users\aw 18\documents\github\sd6midterm\sd6midtermclient\code\gamemain.cpp(52): warning C4244: 'argument' : conversion from 'LONG' to 'float', possible loss of data
+     1>c:\users\aw 18\documents\github\sd6midterm\sd6midtermclient\code\gamemain.cpp(104): warning C4189: 'BREAKHERE' : local variable is initialized but not referenced
+     1>c:\users\aw 18\documents\github\sd6midterm\sd6midtermclient\code\gamemain.cpp(238): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\aw 18\documents\github\sd6midterm\sd6midtermclient\code\gamemain.cpp(247): warning C4100: 'scanCode' : unreferenced formal parameter
+     1>c:\users\aw 18\documents\github\sd6midterm\sd6midtermclient\code\gamemain.cpp(247): warning C4100: 'asKey' : unreferenced formal parameter
+         Generating Code...
        ManifestResourceCompile:
          All outputs are up-to-date.
        Link:
@@ -32,4 +36,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:00.78
+Time Elapsed 00:00:01.59
