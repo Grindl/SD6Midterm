@@ -30,11 +30,14 @@ public:
 	Entity m_unit;
 	std::vector<CS6Packet> m_pendingPacketsToSend;
 	std::vector<CS6Packet> m_unprocessedPackets;
+	std::vector<CS6Packet> m_nonAckedGuaranteedPackets;
 	bool m_isDeclaringVictory;
+	double m_lastReceivedPacketTime;
 
 	void sendAllPendingPackets();
 	void processUnprocessedPackets();
 	const bool operator==(const RemoteUDPClient& rhs) const;
+	bool hasTimedOut();
 };
 
 #endif

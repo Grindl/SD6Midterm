@@ -1,22 +1,9 @@
-﻿Build started 9/11/2014 2:14:22 PM.
+﻿Build started 9/11/2014 3:10:02 PM.
      1>Project "C:\Users\AW 18\Documents\GitHub\SD6Midterm\SD6Midterm\SD6Midterm.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Debug\SD6Midterm.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Users\AW 18\Documents\GitHub\SD6Midterm\SD6Midterm\..\EngineCore\Code\\" /ZI /nologo /W4 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Entity.cpp Main.cpp RemoteUDPClient.cpp
-         Entity.cpp
-         Generating Code...
-         Compiling...
-         RemoteUDPClient.cpp
-     1>c:\users\aw 18\documents\github\sd6midterm\sd6midterm\remoteudpclient.cpp(18): warning C4189: 'sendTime' : local variable is initialized but not referenced
-     1>c:\users\aw 18\documents\github\sd6midterm\sd6midterm\remoteudpclient.cpp(71): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>c:\users\aw 18\documents\github\sd6midterm\sd6midterm\remoteudpclient.cpp(71): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>c:\users\aw 18\documents\github\sd6midterm\enginecore\code\systems\time utility.hpp(10): warning C4505: 'initializeTimeUtility' : unreferenced local function has been removed
-         Main.cpp
-     1>c:\users\aw 18\documents\github\sd6midterm\sd6midterm\main.cpp(72): warning C4189: 'currentTime' : local variable is initialized but not referenced
-     1>c:\users\aw 18\documents\github\sd6midterm\sd6midterm\main.cpp(88): warning C4189: 'BREAKNOW' : local variable is initialized but not referenced
-     1>c:\users\aw 18\documents\github\sd6midterm\sd6midterm\main.cpp(99): warning C4127: conditional expression is constant
-         Generating Code...
+         All outputs are up-to-date.
        ManifestResourceCompile:
          All outputs are up-to-date.
        Link:
@@ -37,4 +24,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.55
+Time Elapsed 00:00:00.10

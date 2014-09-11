@@ -5,7 +5,7 @@
 #include "RemoteUDPClient.hpp"
 
 extern SOCKET g_Socket;
-
+extern Color3b g_itColor;
 
 RemoteUDPClient::RemoteUDPClient()
 {
@@ -69,20 +69,40 @@ void RemoteUDPClient::processUnprocessedPackets()
 					//prepare them on this end
 					m_unit.m_color = Color4f(((float)rand())/RAND_MAX, ((float)rand())/RAND_MAX, ((float)rand())/RAND_MAX, 1.f);
 					m_unit.m_position = Vector2f (rand()%500, rand()%500);
+					//if there is no it, then THEY'RE IT!
+					if (g_itColor == Color3b(0,0,0))
+					{
+						g_itColor = Color3b(m_unit.m_color);
+					}
 
 					//send them a reset
+					//and tell them who IT is
 					CS6Packet resetPacket;
 					resetPacket.packetType = TYPE_Reset;
 					Color3b cleanedColor = Color3b(m_unit.m_color);
 					memcpy(resetPacket.playerColorAndID, &cleanedColor, sizeof(cleanedColor));
 					memcpy(resetPacket.data.reset.playerColorAndID, &cleanedColor, sizeof(cleanedColor));
+					Color3b itColor = g_itColor;
+					memcpy(resetPacket.data.reset.itPlayerColorAndID, &itColor, sizeof(itColor));
 					resetPacket.data.reset.playerXPosition = m_unit.m_position.x;
 					resetPacket.data.reset.playerYPosition = m_unit.m_position.y;
 					//increment and set packet num			
-					m_pendingPacketsToSend.push_back(resetPacket);
+					m_nonAckedGuaranteedPackets.push_back(resetPacket);
 				}
 				//else
-				//remove it from the non-acked list
+				else
+				{
+					//remove it from the non-acked list
+					for (unsigned int nonAckedIndex = 0; nonAckedIndex < m_nonAckedGuaranteedPackets.size(); nonAckedIndex++)
+					{
+						if (m_nonAckedGuaranteedPackets[nonAckedIndex].packetNumber == currentPacket.data.acknowledged.packetNumber)
+						{
+							m_nonAckedGuaranteedPackets.erase(m_nonAckedGuaranteedPackets.begin()+nonAckedIndex);
+							nonAckedIndex--;
+						}
+					}
+				}
+				
 				break;
 			}
 		case TYPE_Update:
@@ -106,4 +126,12 @@ void RemoteUDPClient::processUnprocessedPackets()
 			}
 		}
 	}
+}
+
+
+bool RemoteUDPClient::hasTimedOut()
+{
+	double currentTime = getCurrentTimeSeconds();
+	bool timedOut = currentTime > m_lastReceivedPacketTime + 10.f;
+	return timedOut;
 }

@@ -1,7 +1,5 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-//#include <gl/gl.h>
-//#include <gl/glu.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <iphlpapi.h>
@@ -26,12 +24,14 @@ SOCKET g_Socket;
 std::vector<RemoteUDPClient> g_clients;
 
 bool g_gameOver;
+//keep track of who IT is
+Color3b g_itColor;
 
 void startGame()
 {
 	initializeTimeUtility();
 	g_gameOver = false;
-
+	g_itColor = Color3b(0,0,0);
 }
 
 void startServer(const char* port)
@@ -70,14 +70,15 @@ CS6Packet receive()
 			{			
 				newClient = false;
 				double currentTime = getCurrentTimeSeconds();
-				//update the time
+				g_clients[ii].m_lastReceivedPacketTime = currentTime;
 				g_clients[ii].m_unprocessedPackets.push_back(pk);
 			}
 		}
 		if (newClient)
 		{
 			std::cout<<"New client connected\n";
-			//update the time
+			double currentTime = getCurrentTimeSeconds();
+			currentClient.m_lastReceivedPacketTime = currentTime;
 			currentClient.m_unprocessedPackets.push_back(pk);
 			g_clients.push_back(currentClient);
 		}
@@ -105,23 +106,58 @@ int main()
 			currentPacket = receive();
 		} while (currentPacket.packetType != 0);
 
+		Vector2f itLocation = Vector2f(0,0);
 		//Collect all gameplay packets we need to send to other players
 		std::vector<CS6Packet> positionUpdatePackets;
 		for (unsigned int i = 0; i < g_clients.size(); i++)
 		{
 			//check for timeout
-
+			if (g_clients[i].hasTimedOut())
+			{
+				g_clients.erase(g_clients.begin()+i);
+				i--;
+			}
 			//else process all their pending packets and put their new position in the queue			
 			g_clients[i].processUnprocessedPackets();
 			positionUpdatePackets.push_back(g_clients[i].m_unit.packForSend());
-			//also check to see if they have declared victory and propagate
+			//TODO also check to see if they have declared victory and propagate
+			//and finally, grab the location of IT
+			if (Color3b(g_clients[i].m_unit.m_color) == g_itColor)
+			{
+				itLocation = g_clients[i].m_unit.m_position;
+			}
+		}
+
+		Color3b victimColor;
+		for (unsigned int victimIndex = 0; victimIndex < g_clients.size() && !g_gameOver; victimIndex++)
+		{
+			//loop through all victims to see if they are touching IT
+			victimColor = Color3b(g_clients[victimIndex].m_unit.m_color);
+			if (g_clients[victimIndex].m_unit.m_position.distanceSquared(itLocation) < 100.f && !(victimColor == g_itColor))
+			{
+				g_gameOver = true;
+				//if so, put in a victory packet
+				CS6Packet vicPacket;
+				vicPacket.packetType = TYPE_Victory;
+				memcpy(vicPacket.playerColorAndID, &g_itColor, sizeof(g_itColor));
+				memcpy(vicPacket.data.victorious.taggedPlayerColorAndID, &victimColor, sizeof(victimColor));
+				memcpy(vicPacket.data.victorious.winningPlayerColorAndID, &g_itColor, sizeof(g_itColor));
+				positionUpdatePackets.push_back(vicPacket);
+				//TODO should this be guaranteed delivery?
+			}
+			
 		}
 
 		for (unsigned int i = 0; i < g_clients.size(); i++)
 		{
-			//Generate any relevant non-gameplay packets
+			//TODO Generate any relevant non-gameplay packets
+			if (g_gameOver)
+			{
+				//TODO generate reset packets
+			}
 			//put all of the gameplay packets and non-acked guaranteed packets in to a vector to send to the player
 			g_clients[i].m_pendingPacketsToSend.insert(g_clients[i].m_pendingPacketsToSend.end(), positionUpdatePackets.begin(), positionUpdatePackets.end());
+			g_clients[i].m_pendingPacketsToSend.insert(g_clients[i].m_pendingPacketsToSend.end(), g_clients[i].m_nonAckedGuaranteedPackets.begin(), g_clients[i].m_nonAckedGuaranteedPackets.end());
 			//and then send it to them
 			g_clients[i].sendAllPendingPackets();
 		}
@@ -129,7 +165,8 @@ int main()
 		//if the game has ended, reset the game
 		if(g_gameOver)
 		{
-
+			g_itColor = victimColor;
+			g_gameOver = false;
 		}
 
 		Sleep(50);
